@@ -11,9 +11,9 @@ dst_dir = "path/to/dst_dir"
 # latter can also be used in captions and considered as embeddings for pivotal tuning
 extra_path_component = ""
 # Stage number or alias to start from
-start_stage = 1
+start_stage = 2
 # Stage number or alias to end at
-end_stage = 7
+end_stage = 2
 # Directory to save logs. Set to None or none to disable.
 log_dir = "logs"
 # Prefix for log files, defaults to --anime_name if provided otherwise 'logfile'
