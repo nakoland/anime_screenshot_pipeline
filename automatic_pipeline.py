@@ -206,6 +206,8 @@ def extract_frames_and_or_remove_similar(args, stage, logger):
             args.image_prefix,
             ep_init=args.ep_init,
             extract_key=args.extract_key,
+            extract_all_frames=args.extract_all_frames,
+            fps=args.fps,
             duplicate_remover=duplicate_remover,
             logger=logger,
         )

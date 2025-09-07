@@ -799,6 +799,11 @@ def parse_arguments():
         default="configs/csv_examples/default_weighting.csv",
         help="If provided use the provided csv to modify weights",
     )
+    # 새로운 인자 추가
+    parser.add_argument('--extract_all_frames', action='store_true', 
+                        help='Extract all frames from videos (e.g., every frame for 24fps videos)')
+    parser.add_argument('--fps', type=int, default=None, 
+                        help='Optional FPS value for frame extraction when extract_all_frames is True')
 
     args = parser.parse_args()
 

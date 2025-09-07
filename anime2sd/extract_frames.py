@@ -21,7 +21,7 @@ def check_cuda_availability(logger=None):
         return False
 
 
-def get_ffmpeg_command(file, file_pattern, extract_key, logger=None):
+def get_ffmpeg_command(file, file_pattern, extract_key, extract_all_frames=False, fps: Optional[int] = None, logger=None):
     if logger is None:
         logger = logging.getLogger()
     cuda_available = check_cuda_availability(logger)
@@ -36,6 +36,11 @@ def get_ffmpeg_command(file, file_pattern, extract_key, logger=None):
 
     if extract_key:
         command.extend(["-vf", "select='eq(pict_type,I)'", "-vsync", "vfr"])
+    elif extract_all_frames:
+        # 모든 프레임 추출: 필터 없이 원본 fps로 추출 (24fps 영상의 경우 모든 24프레임 추출)
+        if fps is not None:
+            command.extend(["-vf", f"fps={fps}"])  # 명시적 fps 설정 가능
+        # else: 필터 없음, 원본 fps로 모든 프레임 추출
     else:
         command.extend(
             [
@@ -55,6 +60,8 @@ def extract_and_remove_similar(
     prefix: Optional[str] = None,
     ep_init: Optional[int] = None,
     extract_key: bool = False,
+    extract_all_frames: bool = False,  # 새로운 플래그: 모든 프레임 추출 여부
+    fps: Optional[int] = None,  # fps 지정 옵션 (extract_all_frames=True일 때 사용 가능)
     duplicate_remover: Optional[DuplicateRemover] = None,
     logger: Optional[logging.Logger] = None,
 ) -> None:
@@ -81,6 +88,14 @@ def extract_and_remove_similar(
         extract_key (bool):
             Flag indicating whether to extract only key frames.
             Defaults to False.
+        extract_all_frames (bool):
+            Flag indicating whether to extract all frames (for 24fps videos, extracts every frame).
+            If True, overrides the default mpdecimate filter when extract_key is False.
+            Defaults to False.
+        fps (Optional[int]):
+            Optional FPS value to set when extracting all frames (e.g., 24 for 24fps videos).
+            Only used if extract_all_frames is True.
+            Defaults to None (uses original video FPS).
         duplicate_remover (Optional[DuplicateRemover]):
             An instance of DuplicateRemover to remove duplicate frames.
             Defaults to None in which case no duplicate removal is performed.
@@ -122,7 +137,7 @@ def extract_and_remove_similar(
         file_pattern = os.path.join(dst_ep_dir, f"{prefix_anime}EP{ep_num}_%d.png")
 
         # Run ffmpeg on the file, saving the output to the output directory
-        ffmpeg_command = get_ffmpeg_command(file, file_pattern, extract_key, logger)
+        ffmpeg_command = get_ffmpeg_command(file, file_pattern, extract_key, extract_all_frames, fps, logger)
         logger.info(ffmpeg_command)
         subprocess.run(ffmpeg_command, check=True)
 
